@@ -1,5 +1,10 @@
 # What is Cobank?
 
+<div align="center">
+  <img src="./Image/logo.png" alt="Logo" width="200" height="200"> 
+  <h1 align="center">Community Bank</h1>
+</div>
+
 >>Community Bank this showcase project using MERN stack and redis for sesion management
 full web stack project with react, node, express, mongoDB, redis
 --------------------------------------------------------------------------------
