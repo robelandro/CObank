@@ -1,6 +1,6 @@
 # What is Cobank?
 
-Community Bank this showcase project using MERN stack and redis for sesion management
+>>Community Bank this showcase project using MERN stack and redis for sesion management
 full web stack project with react, node, express, mongoDB, redis
 --------------------------------------------------------------------------------
 
@@ -8,7 +8,7 @@ you can see the live version of this project [here](https://cobanknftalem.netlif
 --------------------------------------------------------------------------------
 
 
-# what are available features?
+## what are available features?
 
 * user can register and login
 * user-can creat bank account without need to go physical
@@ -18,7 +18,7 @@ you can see the live version of this project [here](https://cobanknftalem.netlif
 * staff can view all transaction
 * admin can create staff and remove staff and view all staff
 
-# 🚀 usage
+### 🚀 usage
 
 
 ## 📦 install dependencies
