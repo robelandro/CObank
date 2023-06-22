@@ -4,83 +4,83 @@ import {
   TextField,
   FormControl,
   FormLabel,
-  RadioGroup as MuiRadioGroup,
+  RadioGroup,
   FormControlLabel,
   InputLabel,
   Radio,
   MenuItem,
-  Select as MuiSelect,
+  Select,
   Button,
 } from "@material-ui/core";
 import { multiStepContext } from "../Context/StepContext";
 import { Alert } from "@material-ui/lab";
 
 export default function Second() {
-  const { userData, setUserData, setCurrentStep } = useContext(multiStepContext);
+  const { userData, setUserData, setCurrentStep, setErrorMessage } = useContext(multiStepContext);
   const [error, setError] = useState(false);
-  const { name, email, employment, accountType } = userData;
+  const { email, employment, accountType } = userData;
 
   const filledDetails = () => {
-    if (name && email && employment && accountType) {
+    if (email && employment && accountType) {
       setCurrentStep(3);
     } else {
       setError(true);
     }
   };
 
+  const onBack = () => {
+    setCurrentStep(1);
+    setErrorMessage(false);
+  }
+
   return (
     <div>
-      {error && (
-        <Alert severity="error">Please fill all the details</Alert>
-      )}
+      {error && <Alert severity="error">Please fill all the details</Alert>}
       <Grid container>
         <Grid item xs={6}>
-          <TextField
-            margin="normal"
-            label="Account Name"
-            onChange={(e) => setUserData({ ...userData, name: e.target.value })}
-            value={name}
-            color="white"
-          />
           <TextField
             label="E-mail"
             type="email"
             onChange={(e) => setUserData({ ...userData, email: e.target.value })}
-            value={email}
+            value={email || ""}
             color="secondary"
           />
           <FormControl>
             <FormLabel>Employment Status</FormLabel>
-            <MuiRadioGroup
+            <RadioGroup
               row
               onChange={(e) => setUserData({ ...userData, employment: e.target.value })}
-              value={employment}
+              value={employment || ""}
             >
               <FormControlLabel value="Student" control={<Radio />} label="Student" />
               <FormControlLabel value="Employed" control={<Radio />} label="Employed" />
               <FormControlLabel value="UnEmployed" control={<Radio />} label="UnEmployed" />
               <FormControlLabel value="Retired" control={<Radio />} label="Retired" />
-            </MuiRadioGroup>
+            </RadioGroup>
           </FormControl>
         </Grid>
-        <Grid items xs={6}>
+        <Grid item xs={6}>
           <FormControl>
             <InputLabel>Account-Type</InputLabel>
-            <MuiSelect
+            <Select
               onChange={(e) => setUserData({ ...userData, accountType: e.target.value })}
-              value={accountType}
+              value={accountType || ""}
             >
               <MenuItem value="Current Account">Current Account</MenuItem>
               <MenuItem value="Savings Account">Savings Account</MenuItem>
-            </MuiSelect>
+            </Select>
           </FormControl>
         </Grid>
-        <Button variant="contained" color="primary" onClick={() => setCurrentStep(1)}>
-          Back
-        </Button>
-        <Button variant="contained" color="secondary" onClick={filledDetails}>
-          Next
-        </Button>
+        <Grid item xs={6}>
+          <Button variant="contained" color="primary" onClick={onBack}>
+            Back
+          </Button>
+        </Grid>
+        <Grid item xs={6}>
+          <Button variant="contained" color="secondary" onClick={filledDetails}>
+            Next
+          </Button>
+        </Grid>
       </Grid>
     </div>
   );

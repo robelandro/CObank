@@ -9,7 +9,6 @@ import {
   TableBody,
   Paper,
   Typography,
-  Box,
 } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({

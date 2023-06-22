@@ -9,9 +9,9 @@ import {
   Paper,
   makeStyles,
   StepLabel,
-  Button,
 } from "@material-ui/core";
 import { multiStepContext } from "../Context/StepContext";
+import { Alert } from "@material-ui/lab";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function AddCustomer() {
-  const { currentStep, finalData } = useContext(multiStepContext);
+  const { currentStep, errorMessage, setErrorMessage } = useContext(multiStepContext);
   const classes = useStyles();
   function showStep(step) {
     switch (step) {
@@ -44,8 +44,13 @@ export default function AddCustomer() {
   }
   return (
     <Paper elevation={6} className={classes.pageContent}>
+        {errorMessage && (
+        <Alert severity="error" onClose={() => setErrorMessage(false)}>
+          {errorMessage}
+        </Alert>
+      )}
       <form className={classes.root} style={{ alignItems: "center" }}>
-        <Grid container justify="center">
+        <Grid container justifyContent="center">
           <Stepper
             style={{ width: "50%", color: "red" }}
             activeStep={currentStep - 1}

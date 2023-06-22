@@ -42,11 +42,20 @@ const useStyles = makeStyles({
 export default function Customers() {
   const classes = useStyles();
   const [data, setData] = useState([]);
-  useEffect(async () => {
-    await axios.get("http://localhost:5000/customers").then((res) => {
-      setData(res.data);
-    });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/customers");
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
   }, []);
+
   return (
     <div>
       <TableContainer component={Paper}>

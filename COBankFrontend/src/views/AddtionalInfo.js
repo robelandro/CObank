@@ -1,3 +1,4 @@
+import { useHistory } from "react-router-dom";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import {
@@ -5,11 +6,11 @@ import {
   TextField,
   Button,
   Box,
-  LinearProgress,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { AttachFile as AttachFileIcon } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
+import { useCookies } from 'react-cookie';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -33,69 +34,78 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AdditionalInfo = () => {
+const AdditionalInfo = (props) => {
   const classes = useStyles();
+  const history = useHistory();
   const [confirmPassword, setConfirmPassword] = useState("");
   const [password, setPassword] = useState("");
   const [file, setFile] = useState(null);
-  const [progress, setProgress] = useState(0);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState(false);
+  const [, setCookie] = useCookies(['token']);
 
   useEffect(() => {
     if (file) {
-      const url = URL.createObjectURL(file);
-      setPreview(url);
-      return () => URL.revokeObjectURL(url);
+      setPreview(URL.createObjectURL(file));
+      return () => URL.revokeObjectURL(URL.createObjectURL(file));
     } else {
       setPreview(null);
     }
-  }, [file]);
+  }, [file]);  
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (password && confirmPassword && file === null) {
+    if (!password || !confirmPassword || !file) {
       setError(true);
-    } else {
-      setError(false);
+      return;
     }
+
+    setError(false);
+    const encodedString = Buffer.from(
+      `${props.location.state.id}:${password}`
+    ).toString("base64");
+    const headers = { Authorization: `Basic ${encodedString}` };
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      try {
+        const encodeFile = Buffer.from(reader.result).toString("base64");
+        const data = {
+          name: file.name,
+          type: "image",
+          isPublic: true,
+          data: encodeFile,
+        };
+        const response = await axios.post(
+          "http://localhost:5000/addtional",
+          data,
+          { headers }
+        );
+        console.log(response.data);
+        // Store the token in a cookie
+        let expires = new Date();
+        expires.setTime(expires.getTime() + (response.data.expires_in * 1000));
+        setCookie('token', response.data.token, { path: '/', expires });
+        history.push("/");
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    reader.readAsArrayBuffer(file);
   };
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
 
-  const handleFileUpload = () => {
-    if (file) {
-      const formData = new FormData();
-      formData.append("file", file);
-      axios
-        .post("/api/upload", formData, {
-          onUploadProgress: (e) => {
-            setProgress(Math.round((e.loaded * 100) / e.total));
-          },
-        })
-        .then((res) => {
-          console.log(res.data);
-          alert("File uploaded successfully");
-        })
-        .catch((err) => {
-          console.error(err);
-          alert("File upload failed");
-        });
-    } else {
-      alert("Please select a file");
-    }
-  };
-
   return (
     <>
       <Container component="main" maxWidth="xs" className={classes.container}>
-	  {error && (
-        <Alert severity="error" onClose={() => setError(false)}>
-          Please fill all the details and upload the file
-        </Alert>
-      )}
+        {error && (
+          <Alert severity="error" onClose={() => setError(false)}>
+            Please fill all the details and upload the file.
+          </Alert>
+        )}
         <form className={classes.form} onSubmit={handleLogin}>
           <TextField
             variant="outlined"
@@ -126,7 +136,7 @@ const AdditionalInfo = () => {
             className={classes.submitButton}
             component="label"
           >
-            Upload Residance ID Document
+            Upload Residence ID Document
             <AttachFileIcon />
             <input
               type="file"
@@ -144,9 +154,6 @@ const AdditionalInfo = () => {
                 style={{ width: "200px", height: "auto" }}
               />
             </Box>
-          )}
-          {progress > 0 && (
-            <LinearProgress variant="determinate" value={progress} />
           )}
           <Button
             type="submit"

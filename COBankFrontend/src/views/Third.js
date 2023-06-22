@@ -17,12 +17,17 @@ const useStyles = makeStyles({
   label: {
     color: "#006064",
     fontWeight: "bold",
-  }
+  },
 });
 
 export default function Third() {
-  const { userData, setCurrentStep, submitData } = useContext(multiStepContext);
+  const { userData, setCurrentStep, submitData, setErrorMessage } = useContext(multiStepContext);
   const classes = useStyles();
+
+  const onBack = () => {
+    setCurrentStep(2);
+    setErrorMessage(false);
+  }
 
   const renderTableRow = (label, value) => (
     <TableRow>
@@ -66,21 +71,23 @@ export default function Third() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {renderTableRow("Account Name", userData.name)}
-                {renderTableRow("Account - Type", userData.accountType)}
+                {renderTableRow("Account Type", userData.accountType)}
                 {renderTableRow("E-mail", userData.email)}
-                {renderTableRow("Deposit Amount", userData.amount)}
                 {renderTableRow("Employment Status", userData.employment)}
               </TableBody>
             </Table>
           </TableContainer>
         </Grid>
-        <Button variant="contained" color="primary"  onClick={() => setCurrentStep(2)}>
-          Back
-        </Button>
-        <Button variant="contained" color="secondary" onClick={submitData}>
-          Submit
-        </Button>
+        <Grid item xs={6}>
+          <Button variant="contained" color="primary" onClick={onBack}>
+            Back
+          </Button>
+        </Grid>
+        <Grid item xs={6}>
+          <Button variant="contained" color="secondary" onClick={submitData}>
+            Submit
+          </Button>
+        </Grid>
       </Grid>
     </div>
   );

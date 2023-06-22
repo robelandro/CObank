@@ -32,7 +32,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function DataPage() {
+export default function TransTable() {
   const [data, setData] = useState([]);
   const [isDepositDialogOpen, setDepositDialogOpen] = useState(false);
   const [isTransferDialogOpen, setTransferDialogOpen] = useState(false);
@@ -47,7 +47,7 @@ export default function DataPage() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('/data'); // Replace '/data' with the actual API endpoint
+      const response = await axios.get('http://localhost:5000/data'); // Replace '/data' with the actual API endpoint
       setData(response.data);
     } catch (error) {
       console.error(error);

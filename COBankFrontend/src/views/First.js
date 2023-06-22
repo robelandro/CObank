@@ -6,7 +6,6 @@ import {
   FormLabel,
   RadioGroup,
   FormControlLabel,
-  InputLabel,
   Radio,
   Button,
 } from "@material-ui/core";
@@ -39,21 +38,21 @@ export default function First() {
           <TextField
             label="First Name"
             type="text"
-            value={firstName}
+            value={firstName || ""}
             onChange={(e) => setUserData({ ...userData, firstName: e.target.value })}
             fullWidth
           />
 
           <TextField
             label="Address"
-            value={Address}
+            value={Address || ""}
             onChange={(e) => setUserData({ ...userData, Address: e.target.value })}
             fullWidth
           />
           <TextField
             label="Phone Number"
             id="standard-start-adornment"
-            value={Phone}
+            value={Phone || ""}
             onChange={(e) => setUserData({ ...userData, Phone: e.target.value })}
             InputProps={{
               startAdornment: <InputAdornment position="start">+251</InputAdornment>,
@@ -65,13 +64,13 @@ export default function First() {
           <FormControl>
             <TextField
               label="Last Name"
-              value={lastName}
+              value={lastName || ""}
               onChange={(e) => setUserData({ ...userData, lastName: e.target.value })}
               fullWidth
             />
             <FormLabel>Gender</FormLabel>
             <RadioGroup
-              value={gender}
+              value={gender || ""}
               onChange={(e) => setUserData({ ...userData, gender: e.target.value })}
               row
             >
@@ -81,7 +80,7 @@ export default function First() {
           </FormControl>
           <TextField
             type="date"
-            value={DOB}
+            value={DOB || ""}
             onChange={(e) => setUserData({ ...userData, DOB: e.target.value })}
             fullWidth
           />

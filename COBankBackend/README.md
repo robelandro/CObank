@@ -1,35 +1,48 @@
-# COBankBackend
+# 📂 The File Manager
+> This project is a summary of this back-end trimester: authentication, NodeJS, MongoDB, Redis, pagination and background processing.
 
-# 🚀 usage
+## 🎯 The objective is to build a simple platform to upload and view files:
 
+- User authentication via a token
+- List all files
+- Upload a new file
+- Change permission of a file
+- View a file
+- Generate thumbnails for images
 
-## 📦 install dependencies
+## 📝 Requirements
 
+- NodeJS
+- MongoDB
+- Redis
+
+## 🚀 Installation
+
+1. Clone this repository
 ```bash
-cd COBankFrontend
+git clone a
 ```
 
+2. Install the dependencies
 ```bash
 npm install
 ```
 
-## 🏃‍♂️ run the app
-
+3. Create a .env file and fill it with your environment variables
 ```bash
-npm run start-server --silent -- --quiet --trace-warnings
-```
-on other terminal
-
-```bash
-npm run start-server --silent -- --quiet --trace-warnings
+cp .env.example .env
 ```
 
-## 🏃‍♂️ run the app in production mode
-
+4. Run the application
 ```bash
-npm run build
+npm start
 ```
 
-# 🧑🏿 Author
+## 📝 Usage
 
-* [Roblepop](https://github.com/robelandro)
+## ✍ Author
+
+👤 **robelandro**
+
+* Github: [@robelandro](https://github.com/robelandro)
+* LinkedIn: [@robelandro](https://www.linkedin.com/in/nftalem-arega)

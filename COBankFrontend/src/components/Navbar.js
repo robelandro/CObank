@@ -1,21 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
+import { multiStepContext } from "../Context/StepContext";
+import { useCookies } from 'react-cookie'
+import { useHistory } from "react-router-dom";
+import axios from "axios";
 
-export default function Navbar({ userType }) {
+export default function Navbar() {
+  const history = useHistory();
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [userData, setUserData] = useState(null);
+  const { userType } = useContext(multiStepContext);
+  const [cookie, , removeCookie] = useCookies(['token']);
 
   useEffect(() => {
     // Simulating fetching user data from /user endpoint
-    fetchUserData();
+    fetchClientData();
   }, []);
 
   const toggleNavbar = () => {
     setNavbarOpen(!navbarOpen);
   };
 
-  const fetchUserData = () => {
+  const fetchClientData = () => {
     // Simulating fetching user data from /user endpoint
     setTimeout(() => {
       const data = {
@@ -31,21 +38,33 @@ export default function Navbar({ userType }) {
     setProfileOpen(!profileOpen);
   };
 
+  const handleLogout = async() => {
+    // Perform logout logic here
+
+    try {
+      const header = {'x-token': cookie.token}
+      const res = await axios.get("http://localhost:5000/disconnect", {headers: header});
+      console.log(res.data);
+    } catch (error) {
+      console.error(error.message);
+    } finally {
+      removeCookie('token', { path: '/' });
+      history.push("/");
+    }
+  };
+
   const getNavigationLinks = () => {
-    userType = 'client'
     if (userType === "client") {
       return [
         { label: "Transactions", to: "/transactions" },
         { label: "Profile", to: "/profile" },
         { label: "Customer Service", to: "/customer-service" },
-        { label: "Log Out", to: "/logout" },
       ];
     } else if (userType === "staff") {
       return [
         { label: "Transactions", to: "/transactions" },
         { label: "Profile", to: "/profile" },
         { label: "Notifications", to: "/notifications" },
-        { label: "Log Out", to: "/logout" },
       ];
     } else if (userType === "admin") {
       return [{ label: "Control", to: "/control" }];
@@ -119,6 +138,13 @@ export default function Navbar({ userType }) {
             <li className="nav-item profile-button">
               <button className="nav-link" onClick={toggleProfile}>
                 <i className={`fas ${profileOpen ? "fa-times" : "fa-user"}`}></i>
+              </button>
+            </li>
+          )}
+          {userType && (
+            <li className="nav-item">
+              <button className="nav-link" onClick={handleLogout}>
+                Log Out
               </button>
             </li>
           )}

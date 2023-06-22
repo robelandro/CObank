@@ -7,7 +7,10 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 import { Alert } from "@material-ui/lab";
 import InputAdornment from "@material-ui/core/InputAdornment";
-import { AccountCircle, Lock } from "@material-ui/icons";
+import { Lock } from "@material-ui/icons";
+import axios from "axios";
+import { useCookies } from 'react-cookie'
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -33,16 +36,32 @@ const useStyles = makeStyles((theme) => ({
 
 const Login = () => {
   const classes = useStyles();
+  const history = useHistory();
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
-  const [accountNumber, setAccountNumber] = useState("");
   const [error, setError] = useState(false);
+  const [, setCookie] = useCookies(['token']);
 
-  const handleLogin = (e) => {
+  const handleLogin = async(e) => {
     e.preventDefault();
-    if (password &&  phone && accountNumber) {
+    if (!password ||  !phone) {
       setError(true);
     } else {
+      try {
+        const encodedString = Buffer.from(
+          `+251${phone}:${password}`
+        ).toString("base64");
+        const headers = { Authorization: `Basic ${encodedString}` };
+        const response = await axios.get("http://localhost:5000/connect", { headers });
+        console.log(response.data);
+        let expires = new Date();
+        expires.setTime(expires.getTime() + (response.data.expires_in * 1000));
+        setCookie('token', response.data.token, { path: '/', expires });
+        history.push("/");
+      } catch (error) {
+        console.error(error.message);
+      } finally {
+      }
       setError(false);
     }
   };
@@ -53,7 +72,7 @@ const Login = () => {
 	  <Lock />{" Login"}
 	  {error && (
         <Alert severity="error" onClose={() => setError(false)}>
-          Please fill all the details and upload the file
+          Please fill all the details
         </Alert>
       )}
         <form className={classes.form} onSubmit={handleLogin}>
@@ -83,17 +102,6 @@ const Login = () => {
 				startAdornment: <InputAdornment position="start">+251</InputAdornment>,
 			  }}
           />
-		    <TextField 
-			variant="outlined"
-			margin="normal"
-			required
-			fullWidth
-			name="accountNumber"
-			label="accountNumber"
-			id="accountNumber"
-			value={accountNumber}
-			onChange={(e) => setAccountNumber(e.target.value)}
-			/>
           <Button
             type="submit"
             fullWidth

@@ -33,7 +33,7 @@ export default function Footer() {
               Find us on any of these platforms, we respond 1-2 business days.
             </h5>
             <div className="mt-6">
-              <a href="https://www.linkedin.com/in/nftalem-arega/" target="_blank" >
+              <a href="https://www.linkedin.com/in/nftalem-arega/" target="_blank" rel="noreferrer" >
               <button
                 className="bg-white text-blue-600 shadow-lg font-normal h-10 w-10 items-center justify-center align-center rounded-full outline-none focus:outline-none mr-2 p-3"
                 type="button"
@@ -41,8 +41,7 @@ export default function Footer() {
                 <i className="flex fab fa-linkedin"></i>
               </button>
               </a>
-
- <a href="https://github.com/robelandro" target="_blank" >
+              <a href="https://github.com/robelandro" target="_blank" rel="noreferrer" >
               <button
                 className="bg-white text-gray-900 shadow-lg font-normal h-10 w-10 items-center justify-center align-center rounded-full outline-none focus:outline-none mr-2 p-3"
                 type="button"
