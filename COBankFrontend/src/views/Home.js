@@ -38,6 +38,7 @@ const Home = () => {
           } catch (error) {
             console.error(error.message);
             setIsLanding(true);
+            setUserType(undefined);
           } finally {
             setIsLoading(false); // Set the loading state to false after fetching data
           }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import {
   Table,
@@ -15,6 +15,7 @@ import {
   TextField,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { multiStepContext } from "../Context/StepContext";
 
 // Define some custom styles using makeStyles hook
 const useStyles = makeStyles({
@@ -37,6 +38,7 @@ export default function TransTable() {
   const [isDepositDialogOpen, setDepositDialogOpen] = useState(false);
   const [isTransferDialogOpen, setTransferDialogOpen] = useState(false);
   const [isWithdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
+  const { userType } = useContext(multiStepContext);
 
   // Use the custom styles
   const classes = useStyles();
@@ -47,7 +49,7 @@ export default function TransTable() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/data'); // Replace '/data' with the actual API endpoint
+      const response = await axios.get('http://localhost:5000/getTransaction'); // Replace '/data' with the actual API endpoint
       setData(response.data);
     } catch (error) {
       console.error(error);

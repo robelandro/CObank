@@ -3,6 +3,7 @@ import UsersController from '../controllers/UsersController';
 import AuthController from '../controllers/AuthController';
 import FilesController from '../controllers/FilesController';
 import ClientInfoControler from '../controllers/ClientInfoControler';
+import TranController from '../controllers/TranController';
 
 /**
  * Binds the routes to the appropriate handler in the
@@ -26,6 +27,13 @@ const mapRoutes = (app) => {
   app.post('/createClient', ClientInfoControler.accountCreate);
   app.post('/addtional', UsersController.addtional);
   app.get('/customer', ClientInfoControler.getMecustomer);
+  app.put('/deposit', TranController.deposit);
+  app.put('/withdraw', TranController.withdraw);
+  app.post('/transfer', TranController.transfer);
+  app.get('/balance', TranController.balance);
+  app.get('/transactions', TranController.getTransactions);
+  app.delete('/remstaff', UsersController.deleteStaff);
+  app.get('/staff', UsersController.getStaff);
 };
 
 export default mapRoutes;

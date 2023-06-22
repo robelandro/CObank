@@ -67,7 +67,6 @@ class ClientInfo {
       firstName,
       lastName,
       DOB,
-      balance: 0,
       status: 'waiting',
       gender,
       created_at: new Date(),

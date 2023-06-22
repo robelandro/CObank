@@ -1,15 +1,11 @@
 import React, { useState } from "react";
-import {
-  Container,
-  TextField,
-  Button,
-} from "@material-ui/core";
+import { Container, TextField, Button } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Alert } from "@material-ui/lab";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import { Lock } from "@material-ui/icons";
 import axios from "axios";
-import { useCookies } from 'react-cookie'
+import { useCookies } from "react-cookie";
 import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
@@ -40,42 +36,69 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState(false);
-  const [, setCookie] = useCookies(['token']);
+  const [ errorMessage, setErrorMessage ] = useState("");
+  const [, setCookie] = useCookies(["token"]);
 
-  const handleLogin = async(e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (!password ||  !phone) {
+    if (!password || !phone) {
       setError(true);
     } else {
       try {
-        const encodedString = Buffer.from(
-          `+251${phone}:${password}`
-        ).toString("base64");
+        const encodedString = Buffer.from(`+251${phone}:${password}`).toString(
+          "base64"
+        );
         const headers = { Authorization: `Basic ${encodedString}` };
-        const response = await axios.get("http://localhost:5000/connect", { headers });
+        const response = await axios.get("http://localhost:5000/connect", {
+          headers,
+        });
         console.log(response.data);
         let expires = new Date();
-        expires.setTime(expires.getTime() + (response.data.expires_in * 1000));
-        setCookie('token', response.data.token, { path: '/', expires });
+        expires.setTime(expires.getTime() + response.data.expires_in * 1000);
+        setCookie("token", response.data.token, { path: "/", expires });
         history.push("/");
-      } catch (error) {
-        console.error(error.message);
+        setError(false);
+      } catch (err) {
+        setError(true);
+        if (err.response) {
+          console.log(err.response.data);
+          setErrorMessage(err.response.data.error);
+        } else {
+          console.log(err.message);
+          setErrorMessage(err.message);
+        }
       } finally {
       }
-      setError(false);
     }
   };
 
   return (
     <>
       <Container component="main" maxWidth="xs" className={classes.container}>
-	  <Lock />{" Login"}
-	  {error && (
-        <Alert severity="error" onClose={() => setError(false)}>
-          Please fill all the details
-        </Alert>
-      )}
+        <Lock />
+        {" Login"}
+        {error && (
+          <Alert severity="error" onClose={() => setError(false)}>
+            {errorMessage}
+          </Alert>
+        )}
         <form className={classes.form} onSubmit={handleLogin}>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            name="phone"
+            label="phone"
+            id="phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">+251</InputAdornment>
+              ),
+            }}
+          />
           <TextField
             variant="outlined"
             margin="normal"
@@ -87,20 +110,6 @@ const Login = () => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-          />
-		    <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            name="phone"
-            label="phone"
-            id="phone"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-			InputProps={{
-				startAdornment: <InputAdornment position="start">+251</InputAdornment>,
-			  }}
           />
           <Button
             type="submit"

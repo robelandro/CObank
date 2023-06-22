@@ -1,45 +1,26 @@
-import Bull from 'bull';
 import { v4 as uuidv4 } from 'uuid';
 import User from '../utils/users';
 import BasicAuthBank from '../utils/basicAuthBank';
 import Files from '../utils/files';
 import redisClient from '../utils/redis';
 
-const userQueue = new Bull('userQueue');
-
 /* The AppController for retrieving the status and statistics of a
 dbs and Redis client. */
 class UsersController {
   /**
-     * The function retrieves the post of users
+     * The function add a new staff to database
      * sends the result as a response.
-     * @param request - The request parameter is an object that contains
-     * @param response - The `response` parameter is an object
+     * @param req - The request parameter is an object that contains
+     * @param res - The `response` parameter is an object
  */
-  static async postNew(request, response) {
-    console.log('postNew', request.body);
-    const { email, password } = request.body;
-    if (!email) {
-      return response.status(400).send({ error: 'Missing email' });
-    }
-    if (!password) {
-      return response.status(400).send({ error: 'Missing password' });
-    }
-    try {
-      const us = new User();
-      const userp = await us.findUserByEmail(email);
-      if (userp) {
-        return response.status(400).send({ error: 'Already exist' });
-      }
-
-      const id = await us.createUser(email, password);
-      const result = { id, email };
-      await userQueue.add({
-        userId: id,
-      });
-      return response.status(201).send(result);
-    } catch (error) {
-      return response.status(501).send({ error: 'Internal Server' });
+  static async postNew(req, res) {
+    const userID = await BasicAuthBank.onRegister(req, 'staff');
+    if (userID) {
+      const token = uuidv4();
+      await redisClient.set(`auth_${token}`, userID.toString(), 86400);
+      res.status(200).send({ token });
+    } else {
+      res.status(401).send({ error: 'Unauthorized' });
     }
   }
 
@@ -93,7 +74,7 @@ class UsersController {
   }
 
   static async addtional(req, res) {
-    const userID = await BasicAuthBank.onRegister(req);
+    const userID = await BasicAuthBank.onRegister(req, 'client');
     if (userID) {
       const filefound = await UsersController.postUpload(req, userID);
       if (filefound.error) {
@@ -105,6 +86,33 @@ class UsersController {
       }
     } else {
       res.status(401).send({ error: 'Unauthorized' });
+    }
+  }
+
+  static async getStaff(request, response) {
+    const us = new User();
+    const { page } = request.query;
+    const { limit } = request.query;
+    const users = await us.getAllStaff(page, limit);
+    if (users) {
+      response.status(200).send(users);
+    } else {
+      response.status(404).send({ error: 'Not found' });
+    }
+  }
+
+  /**
+   *
+   * @param {*} request
+   * @param {*} response
+   */
+  static async deleteStaff(request, response) {
+    const us = new User();
+    const user = await us.removeStaff(request.params.id);
+    if (user) {
+      response.status(204).send();
+    } else {
+      response.status(404).send({ error: 'Not found' });
     }
   }
 }

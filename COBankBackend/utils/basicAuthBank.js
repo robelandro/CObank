@@ -88,7 +88,7 @@ class BasicAuthBank {
     return false;
   }
 
-  static async onRegister(request) {
+  static async onRegister(request, userType) {
     const authHeader = BasicAuthBank.authorizationHeader(request);
     const eBase64 = BasicAuthBank.extractBase64AuthorizationHeader(authHeader);
     const dBase64 = BasicAuthBank.decodeBase64AuthorizationHeader(eBase64);
@@ -102,7 +102,7 @@ class BasicAuthBank {
       return false;
     }
     const user = new User();
-    const userId = await user.createUser(clientId, userPwd);
+    const userId = await user.createUser(clientId, userPwd, userType);
     return userId;
   }
 

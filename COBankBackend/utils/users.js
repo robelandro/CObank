@@ -22,13 +22,8 @@ class User {
         const user = await this.users.findOne(query);
         return user;
       } if (arguments.length === 2) {
-        console.log('userid:', userID, upassword);
         const query = { userID: ObjectId(userID), password: upassword };
-        console.log(query);
         const user = await this.users.findOne(query);
-        const users = await this.users.find();
-        console.log('user:' ,user);
-        console.log('user:' ,await users.toArray());
         return user;
       }
       throw new Error('Invalid number of arguments');
@@ -44,10 +39,10 @@ class User {
    * @param {*} upassword
    * @returns
    */
-  async createUser(userID, upassword) {
+  async createUser(userID, upassword, userType) {
     try {
       const hashedPassword = crypto.createHash('sha1').update(upassword).digest('hex');
-      const query = { userID: ObjectId(userID), password: hashedPassword, userType: 'client' };
+      const query = { userID: ObjectId(userID), password: hashedPassword, userType };
       const user = await this.users.insertOne(query);
       return user.insertedId;
     } catch (error) {
@@ -82,6 +77,37 @@ class User {
     const userId = await redisClient.get(`auth_${token}`);
     const user = await this.findById(userId);
     return user;
+  }
+
+  /**
+   *
+   * @param {string} id
+   * @returns
+   */
+  async removeStaff(id) {
+    try {
+      const objectId = new ObjectId(id);
+      const query = { _id: objectId };
+      await this.users.deleteOne(query);
+      return true;
+    } catch (error) {
+      console.log(`Error remove: ${error}`);
+      return false;
+    }
+  }
+
+  async getAllStaff(page = 1, limit = 10) {
+    try {
+      const query = { userType: 'staff' };
+      const options = { projection: { password: 0 } };
+      const cursor = await this.users.find(query, options);
+      const total = await cursor.count();
+      const data = await cursor.skip(page * limit).limit(limit).toArray();
+      return { data, total };
+    } catch (error) {
+      console.log(`Error getAll: ${error}`);
+      return false;
+    }
   }
 }
 

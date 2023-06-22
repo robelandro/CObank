@@ -18,7 +18,7 @@ class AuthController {
       await redisClient.set(`auth_${token}`, user._id.toString(), 86400);
       res.status(200).send({ token });
     } else {
-      res.status(401).send({ error: 'Unauthorized' });
+      res.status(401).send({ error: 'No User with this Account' });
     }
   }
 
