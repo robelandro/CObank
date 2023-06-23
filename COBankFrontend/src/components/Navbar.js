@@ -14,25 +14,24 @@ export default function Navbar() {
   const [cookie, , removeCookie] = useCookies(['token']);
 
   useEffect(() => {
-    // Simulating fetching user data from /user endpoint
-    fetchClientData();
-  }, []);
+    const fetchUser = async () => {
+      try {
+        const header = { 'x-token': cookie.token };
+        const response = await axios.get("http://localhost:5000/users/me", { headers: header });
+        console.log(response.data);
+        setUserData(response.data);
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+
+    fetchUser();
+  }, [cookie.token]);
 
   const toggleNavbar = () => {
     setNavbarOpen(!navbarOpen);
   };
 
-  const fetchClientData = () => {
-    // Simulating fetching user data from /user endpoint
-    setTimeout(() => {
-      const data = {
-        name: "John Doe",
-        email: "johndoe@example.com",
-        // Add more data properties as needed
-      };
-      setUserData(data);
-    }, 1000);
-  };
 
   const toggleProfile = () => {
     setProfileOpen(!profileOpen);
@@ -57,14 +56,14 @@ export default function Navbar() {
     if (userType === "client") {
       return [
         { label: "Transactions", to: "/transactions" },
-        { label: "Profile", to: "/profile" },
         { label: "Customer Service", to: "/customer-service" },
+        { label: "Profile", to: "/profile" },
       ];
     } else if (userType === "staff") {
       return [
         { label: "Transactions", to: "/transactions" },
-        { label: "Profile", to: "/profile" },
         { label: "Notifications", to: "/notifications" },
+        { label: "customer", to: "/customers" },
       ];
     } else if (userType === "admin") {
       return [{ label: "Control", to: "/control" }];
@@ -155,8 +154,8 @@ export default function Navbar() {
           {userData ? (
             <div className="profile-info">
               <div className="profile-details">
-                <h4>{userData.name}</h4>
-                <p>{userData.email}</p>
+                <h4>{userData.userID}</h4>
+                <p>{userData.userType}</p>
                 {/* Add more user data here */}
               </div>
             </div>

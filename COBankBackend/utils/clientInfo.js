@@ -143,6 +143,18 @@ class ClientInfo {
       return false;
     }
   }
+
+  async getAllUsers(page = 0, limit = 10) {
+    try {
+      const skip = page * limit;
+      const query = {};
+      const users = await this.ClientInfo.find(query).skip(skip).limit(limit).toArray();
+      return users;
+    } catch (error) {
+      console.log(`Error find: ${error}`);
+      return false;
+    }
+  }
 }
 
 export default ClientInfo;

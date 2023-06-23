@@ -22,7 +22,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    margin: theme.spacing(2),
+    margin: theme.spacing(10),
   },
   title: {
     fontWeight: 'bold',
@@ -55,7 +55,8 @@ const AdminPage = () => {
 
   const fetchStaffData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/getStaffData');
+      const response = await axios.get('http://localhost:5000/staff');
+      console.log(response.data);
       setStaffData(response.data);
     } catch (error) {
       console.error(error);
@@ -82,7 +83,11 @@ const AdminPage = () => {
 
   const handleAddStaff = async () => {
     try {
-      await axios.post('http://localhost:5000/addStaff', { name, position });
+      const encodedString = Buffer.from(`+251${name}:${position}`).toString(
+        "base64"
+      );
+      const headers = { Authorization: `Basic ${encodedString}` };
+      await axios.post('http://localhost:5000/users', null, {headers});
       fetchStaffData();
       handleAddDialogClose();
     } catch (error) {
@@ -92,7 +97,7 @@ const AdminPage = () => {
 
   const handleRemoveStaff = async () => {
     try {
-      await axios.post('http://localhost:5000/removeStaff', { name });
+      await axios.delete('http://localhost:5000/remstaff', {data: {name}});
       fetchStaffData();
       handleRemoveDialogClose();
     } catch (error) {
@@ -130,15 +135,19 @@ const AdminPage = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Position</TableCell>
+              <TableCell>ID</TableCell>
+              <TableCell>Phone</TableCell>
+              <TableCell>Password</TableCell>
+              <TableCell>User Type</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {staffData.map((staff) => (
-              <TableRow key={staff.id}>
-                <TableCell>{staff.name}</TableCell>
-                <TableCell>{staff.position}</TableCell>
+              <TableRow key={staff._id}>
+                <TableCell>{staff._id}</TableCell>
+                <TableCell>{staff.Phone}</TableCell>
+                <TableCell>{staff.password}</TableCell>
+                <TableCell>{staff.userType}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -150,12 +159,12 @@ const AdminPage = () => {
         <DialogTitle>Add Staff</DialogTitle>
         <DialogContent className={classes.dialogContent}>
           <TextField
-            label="Name"
+            label="Phone Number"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <TextField
-            label="Position"
+            label="Password"
             value={position}
             onChange={(e) => setPosition(e.target.value)}
           />
@@ -175,7 +184,7 @@ const AdminPage = () => {
         <DialogTitle>Remove Staff</DialogTitle>
         <DialogContent className={classes.dialogContent}>
           <TextField
-            label="Name"
+            label="Id from the table"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />

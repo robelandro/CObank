@@ -3,6 +3,7 @@ import axios from "axios";
 import { withStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
+import { useCookies } from 'react-cookie';
 
 const styles = (theme) => ({
   paper: {
@@ -10,6 +11,7 @@ const styles = (theme) => ({
     borderTopLeftRadius: "50px",
     borderBottomRightRadius: "50px",
     background: "#ECF0F1",
+    marginBottom: theme.spacing(2),
   },
   item: {
     display: "flex",
@@ -23,12 +25,23 @@ const styles = (theme) => ({
 
 const ProfilePage = ({ classes }) => {
   const [profileData, setProfileData] = useState({});
+  const [cookie] = useCookies(['token']);
 
   useEffect(() => {
-    axios.get("/user").then((response) => {
-      setProfileData(response.data);
-    });
-  }, []);
+    const fetchUser = async () => {
+      try {
+        const header = { 'x-token': cookie.token };
+        const response = await axios.get("http://localhost:5000/customer", { headers: header });
+        console.log(response.data);
+        setProfileData(response.data);
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+
+    fetchUser();
+  }, [cookie.token]);
+
 
   return (
     <div>
@@ -36,19 +49,12 @@ const ProfilePage = ({ classes }) => {
         <Typography variant="h5" gutterBottom>
           Profile
         </Typography>
-        <div className={classes.item}>
-          <Typography className={classes.key}>Name:</Typography>
-          <Typography>{profileData.name}</Typography>
-        </div>
-        <div className={classes.item}>
-          <Typography className={classes.key}>Email:</Typography>
-          <Typography>{profileData.email}</Typography>
-        </div>
-        <div className={classes.item}>
-          <Typography className={classes.key}>Address:</Typography>
-          <Typography>{profileData.address}</Typography>
-        </div>
-        {/* Add more profile fields as needed */}
+        {Object.entries(profileData).map(([key, value]) => (
+          <div className={classes.item} key={key}>
+            <Typography className={classes.key}>{key}:</Typography>
+            <Typography>{value}</Typography>
+          </div>
+        ))}
       </Paper>
     </div>
   );

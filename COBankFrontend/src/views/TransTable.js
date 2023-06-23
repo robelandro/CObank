@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState, useContext } from "react";
+import axios from "axios";
 import {
   Table,
   TableContainer,
@@ -13,23 +13,23 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+} from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import { multiStepContext } from "../Context/StepContext";
+import { useCookies } from "react-cookie";
 
-// Define some custom styles using makeStyles hook
 const useStyles = makeStyles({
   root: {
-    margin: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
+    margin: "20px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   buttonGroup: {
-    marginBottom: '50px',
+    marginBottom: "50px",
   },
   button: {
-    margin: '5px',
+    margin: "5px",
   },
 });
 
@@ -39,22 +39,29 @@ export default function TransTable() {
   const [isTransferDialogOpen, setTransferDialogOpen] = useState(false);
   const [isWithdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const { userType } = useContext(multiStepContext);
-
-  // Use the custom styles
+  const [amount, setAmount] = useState(0);
+  const [description, setDescription] = useState("");
+  const [toAccountNumber, setToAccountNumber] = useState("");
+  const [userID, setUserID] = useState("");
   const classes = useStyles();
+  const [cookie] = useCookies(["token"]);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const fetchData = async () => {
+      try {
+        const header = { "x-token": cookie.token };
+        const res = await axios.get("http://localhost:5000/transactions", {
+          headers: header,
+        });
+        console.log(res.data);
+        setData(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/getTransaction'); // Replace '/data' with the actual API endpoint
-      setData(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    fetchData();
+  }, [cookie.token]);
 
   const handleDepositDialogOpen = () => {
     setDepositDialogOpen(true);
@@ -80,17 +87,85 @@ export default function TransTable() {
     setWithdrawDialogOpen(false);
   };
 
+  const handleDepositSubmit = async () => {
+    try {
+      const data = {
+        amount: amount,
+        description: description,
+        userID: userID,
+      };
+      const header = { "x-token": cookie.token };
+      const res = await axios.put("http://localhost:5000/deposit", data, {
+        headers: header,
+      });
+      console.log(res.data);
+      setDepositDialogOpen(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleTransferSubmit = async () => {
+    try {
+      const data = {
+        amount: amount,
+        description: description,
+        userID: userID,
+        toAccountNumber: toAccountNumber,
+      };
+      const header = { "x-token": cookie.token };
+      const res = await axios.put("http://localhost:5000/transfer", data, {
+        headers: header,
+      });
+      console.log(res.data);
+      setTransferDialogOpen(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleWithdrawSubmit = async () => {
+    try {
+      const data = {
+        amount: amount,
+        description: description,
+        userID: userID,
+      };
+      const header = { "x-token": cookie.token };
+      const res = await axios.put("http://localhost:5000/withdraw", data, {
+        headers: header,
+      });
+      console.log(res.data);
+      setWithdrawDialogOpen(false);
+      console.log(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className={classes.root}>
       <div className={classes.buttonGroup}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleDepositDialogOpen}
-          className={classes.button}
-        >
-          Deposit
-        </Button>
+        {userType !== "client" && (
+          <>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDepositDialogOpen}
+              className={classes.button}
+            >
+              Deposit
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleWithdrawDialogOpen}
+              className={classes.button}
+            >
+              Withdraw
+            </Button>
+          </>
+        )}
         <Button
           variant="contained"
           color="primary"
@@ -98,14 +173,6 @@ export default function TransTable() {
           className={classes.button}
         >
           Transfer
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleWithdrawDialogOpen}
-          className={classes.button}
-        >
-          Withdraw
         </Button>
       </div>
 
@@ -134,11 +201,31 @@ export default function TransTable() {
       <Dialog open={isDepositDialogOpen} onClose={handleDepositDialogClose}>
         <DialogTitle>Deposit</DialogTitle>
         <DialogContent>
-          <TextField label="Money Box" fullWidth />
+          <TextField
+            label="Amount"
+            fullWidth
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+          <TextField
+            label="Description"
+            fullWidth
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <TextField
+            label="UserID"
+            fullWidth
+            value={userID}
+            onChange={(e) => setUserID(e.target.value)}
+          />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDepositDialogClose} color="primary">
+          <Button onClick={handleDepositSubmit} color="primary">
             Submit
+          </Button>
+          <Button onClick={handleDepositDialogClose} color="primary">
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>
@@ -147,13 +234,39 @@ export default function TransTable() {
       <Dialog open={isTransferDialogOpen} onClose={handleTransferDialogClose}>
         <DialogTitle>Transfer</DialogTitle>
         <DialogContent>
-          <TextField label="Money" fullWidth />
-          <TextField label="Reason" fullWidth />
-          <TextField label="To Account Number" fullWidth />
+          <TextField
+            label="Amount"
+            fullWidth
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+          <TextField
+            label="Description"
+            fullWidth
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          {userType !== "client" && (
+            <TextField
+              label="UserID"
+              fullWidth
+              value={userID}
+              onChange={(e) => setUserID(e.target.value)}
+            />
+          )}
+          <TextField
+            label="To Account Number"
+            fullWidth
+            value={toAccountNumber}
+            onChange={(e) => setToAccountNumber(e.target.value)}
+          />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleTransferDialogClose} color="primary">
+          <Button onClick={handleTransferSubmit} color="primary">
             Submit
+          </Button>
+          <Button onClick={handleTransferDialogClose} color="primary">
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>
@@ -162,12 +275,31 @@ export default function TransTable() {
       <Dialog open={isWithdrawDialogOpen} onClose={handleWithdrawDialogClose}>
         <DialogTitle>Withdraw</DialogTitle>
         <DialogContent>
-          <TextField label="Money" fullWidth />
-          <TextField label="Reason" fullWidth />
+          <TextField
+            label="Amount"
+            fullWidth
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+          <TextField
+            label="Description"
+            fullWidth
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <TextField
+            label="UserID"
+            fullWidth
+            value={userID}
+            onChange={(e) => setUserID(e.target.value)}
+          />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleWithdrawDialogClose} color="primary">
+          <Button onClick={handleWithdrawSubmit} color="primary">
             Submit
+          </Button>
+          <Button onClick={handleWithdrawDialogClose} color="primary">
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>

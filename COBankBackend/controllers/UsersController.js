@@ -108,7 +108,7 @@ class UsersController {
    */
   static async deleteStaff(request, response) {
     const us = new User();
-    const user = await us.removeStaff(request.params.id);
+    const user = await us.removeStaff(request.body.name);
     if (user) {
       response.status(204).send();
     } else {

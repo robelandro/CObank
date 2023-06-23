@@ -12,13 +12,21 @@ class AuthController {
    * @param {*} res
    */
   static async getConnect(req, res) {
-    const user = await BasicAuthBank.onLogin(req);
+    let user = null;
+    user = await BasicAuthBank.onLogin(req);
     if (user) {
       const token = uuidv4();
       await redisClient.set(`auth_${token}`, user._id.toString(), 86400);
       res.status(200).send({ token });
     } else {
-      res.status(401).send({ error: 'No User with this Account' });
+      user = await BasicAuthBank.onLoginStaff(req);
+      if (user) {
+        const token = uuidv4();
+        await redisClient.set(`auth_${token}`, user._id.toString(), 86400);
+        res.status(200).send({ token });
+      } else {
+        res.status(401).send({ error: 'No User with this Account' });
+      }
     }
   }
 

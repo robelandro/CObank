@@ -29,11 +29,12 @@ const mapRoutes = (app) => {
   app.get('/customer', ClientInfoControler.getMecustomer);
   app.put('/deposit', TranController.deposit);
   app.put('/withdraw', TranController.withdraw);
-  app.post('/transfer', TranController.transfer);
+  app.put('/transfer', TranController.transfer);
   app.get('/balance', TranController.balance);
   app.get('/transactions', TranController.getTransactions);
   app.delete('/remstaff', UsersController.deleteStaff);
   app.get('/staff', UsersController.getStaff);
+  app.get('/client', ClientInfoControler.getClient);
 };
 
 export default mapRoutes;

@@ -114,6 +114,18 @@ class BasicAuthBank {
     const user = await BasicAuthBank.userFromCredentials(Phone, userPwd);
     return user;
   }
+
+  static async onLoginStaff(request) {
+    const authHeader = BasicAuthBank.authorizationHeader(request);
+    const eBase64 = BasicAuthBank.extractBase64AuthorizationHeader(authHeader);
+    const dBase64 = BasicAuthBank.decodeBase64AuthorizationHeader(eBase64);
+    const [Phone, userPwd] = await BasicAuthBank.extractUserCredentials(dBase64);
+    const userPwds = crypto.createHash('SHA1').update(userPwd).digest('hex')
+      .toLowerCase();
+    const cust = new User();
+    const user1 = await cust.findUserByPhone(Phone, userPwds);
+    return user1;
+  }
 }
 
 export default BasicAuthBank;

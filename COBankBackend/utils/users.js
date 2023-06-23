@@ -35,6 +35,30 @@ class User {
 
   /**
    *
+   * @param {*} userID
+   * @param {*} upassword
+   * @returns
+   */
+  async findUserByPhone(userID, upassword) {
+    try {
+      if (arguments.length === 1) {
+        const query = { userID };
+        const user = await this.users.findOne(query);
+        return user;
+      } if (arguments.length === 2) {
+        const query = { Phone: userID, password: upassword };
+        const user = await this.users.findOne(query);
+        return user;
+      }
+      throw new Error('Invalid number of arguments');
+    } catch (error) {
+      console.log(`Error Email Found: ${error}`);
+      return false;
+    }
+  }
+
+  /**
+   *
    * @param {*} uemail
    * @param {*} upassword
    * @returns
@@ -42,7 +66,10 @@ class User {
   async createUser(userID, upassword, userType) {
     try {
       const hashedPassword = crypto.createHash('sha1').update(upassword).digest('hex');
-      const query = { userID: ObjectId(userID), password: hashedPassword, userType };
+      let query = { Phone: userID, password: hashedPassword, userType };
+      if (userType !== 'staff') {
+        query = { userID: ObjectId(userID), password: hashedPassword, userType };
+      }
       const user = await this.users.insertOne(query);
       return user.insertedId;
     } catch (error) {
@@ -96,14 +123,12 @@ class User {
     }
   }
 
-  async getAllStaff(page = 1, limit = 10) {
+  async getAllStaff(page = 0, limit = 10) {
     try {
       const query = { userType: 'staff' };
-      const options = { projection: { password: 0 } };
-      const cursor = await this.users.find(query, options);
-      const total = await cursor.count();
+      const cursor = await this.users.find(query);
       const data = await cursor.skip(page * limit).limit(limit).toArray();
-      return { data, total };
+      return data;
     } catch (error) {
       console.log(`Error getAll: ${error}`);
       return false;
